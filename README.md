@@ -13,7 +13,7 @@ Go to the Field_detection folder in a cmd and write ```pip install -r requiremen
 
 Start ```app.py```
 
-Then select real time or a video of your choose
+Then select real time or a video
 
 Real Time will catch your screen or, if you have a dual screen system, will catch the entire main screen
 
