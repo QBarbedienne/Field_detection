@@ -68,7 +68,7 @@ class FrameFocus():
         self.mask_hsv = np.zeros(self.green.shape, np.uint8)
         if len(contours) > 1:
             cntsSorted = sorted(contours, key=lambda x: cv2.contourArea(x))
-            # Rectangle_sorted
+            # On étudies ici le cas où me terrain serait coupé en deux. Dans ces conditions on joint les deux "rectangles" trouvés ensembles.
             x, y, w, hi = cv2.boundingRect(cntsSorted[len(cntsSorted)-1])
             x2, y2, w2, _ = cv2.boundingRect(cntsSorted[len(cntsSorted)-2])
             if (y2+30 > y or y2-30 < y) and hi > len(self.h)/2:
