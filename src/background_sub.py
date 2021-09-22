@@ -1,4 +1,5 @@
 import cv2
+from d3dshot import display
 import numpy as np
 from matplotlib.pyplot import *
 
@@ -11,6 +12,7 @@ class FrameFocus():
         self.init_parameters = init_params
         self.problemos = False
         self.h = []
+        self.coord = []
         self.fpsc = fpsc
         self.find_ground()
 
@@ -58,8 +60,6 @@ class FrameFocus():
         # Find contours
         self.remove_background()
         if len(self.h) == 0:
-            self.mask_rgb = np.zeros(self.image.shape, np.uint8)
-            self.mask_hsv = np.zeros(self.image.shape, np.uint8)
             self.fpsc.count_calc()
             return
         contours, _ = cv2.findContours(
@@ -81,8 +81,6 @@ class FrameFocus():
                         w = x2-x+w2
                     x = x
             Coord = [x, y, w, hi]
-            if ((x+w)*(y+hi))*2 > (len(self.h)*len(self.h[0])):
-                self.mask_hsv[y:y+hi, x:x+w] = self.green[y:y+hi, x:x+w]
         else:
             x, y, w, hi = Coord
         if self.terrain.size[0] == 0 and self.terrain.size[1] == 0:
@@ -92,7 +90,17 @@ class FrameFocus():
             self.init_parameters.paramTot = [0, 0, 0, 0, 0]
             self.terrain.size = [0, 0]
             self.terrain.coordinates = [0, 0]
+        self.coord = [x, y, w, hi]
+        self.fpsc.count_calc()
+    
+    def display_ground(self):
+        if len(self.h) == 0:
+            self.mask_rgb = np.zeros(self.image.shape, np.uint8)
+            self.mask_hsv = np.zeros(self.image.shape, np.uint8)
+            return
+        x, y, w, hi= self.coord
         self.mask_rgb = np.zeros(self.image.shape, np.uint8)
         self.mask_rgb[y:y+hi, x:x+w] = self.image[y:y+hi, x:x+w]
         self.image_bis = cv2.rectangle(self.image_bis, (x,y), (x+w, y+hi), (0,255,0), 2)
-        self.fpsc.count_calc()
+        if ((x+w)*(y+hi))*2 > (len(self.h)*len(self.h[0])):
+            self.mask_hsv[y:y+hi, x:x+w] = self.green[y:y+hi, x:x+w]

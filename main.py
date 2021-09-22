@@ -37,6 +37,7 @@ class Main():
     def start(self):
         if self.read :
             self.d = d3dshot.create(capture_output="numpy")
+            self.d.display = self.d.displays[1]
         else:
             self.frame.open_cap(self.path_video)
         while self.key_event.continue_while:
@@ -68,6 +69,9 @@ class Main():
 
             # Acquisition du terrain (detection auto du vert+ découpage de l'image autour de cette zone)
             classes = FrameFocus(img, self.init_param, self.field, self.fpsc)
+
+            # Affichage si on le souhaite
+            classes.display_ground()
 
             # Gestion de l'image à afficher
             if self.value:
