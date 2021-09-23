@@ -21,6 +21,7 @@ class Ui_Display_bis(QMainWindow, Ui_Display):
         self.event_display = 0
         self.reboot = False
         self.pause = False
+        self.quit = True
 
     def init_image_display(self):
         # Aucune interet ici.. c'est seulement histoire de voir si ça fonctionne bien et si j'arrive à bien choper mon widget d'affichage
@@ -39,6 +40,7 @@ class Ui_Display_bis(QMainWindow, Ui_Display):
         self.pushButton_5.clicked.connect(self.change_view)
         self.pushButton_3.clicked.connect(self.reboot)
         self.pushButton_2.clicked.connect(self.pause)
+
     def start_main(self):
         # d3dshot fait chier avec le reboot...
         # self.main = Main(False, [self, parent.direct_capture])
@@ -52,7 +54,9 @@ class Ui_Display_bis(QMainWindow, Ui_Display):
             self.pause = True
 
     def quit(self):
+        self.quit = False
         self.parent.show()
+        cv2.destroyAllWindows()
         self.close()
 
     def update_frame(self, frame):
@@ -113,3 +117,4 @@ if __name__ == "__main__":
     win = Window()
     win.show()
     sys.exit(app.exec())
+    

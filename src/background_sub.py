@@ -12,7 +12,7 @@ class FrameFocus():
         self.init_parameters = init_params
         self.problemos = False
         self.h = []
-        self.coord = []
+        self.coord = [0, 0, 0, 0]
         self.fpsc = fpsc
         self.find_ground()
 
@@ -23,7 +23,7 @@ class FrameFocus():
         # Si les paramétres n'ont pas encore été trouvés.
         if self.init_parameters.paramTot[0] == 0:
             # On split pour ne s'interesser qu'a à la couleur
-            h, s, v = cv2.split(hsv)
+            h, _, _ = cv2.split(hsv)
             # Création d'un histogramme de l'image représentant la variation des couleurs
             hist = cv2.calcHist([h], [0], None, [90], [0, 90])
             # En dessous d'un valeur seuille, on vire (l'image d'un terrain de foot est souvent verte oui...)
@@ -34,7 +34,7 @@ class FrameFocus():
             if paramin < 30:
                 self.problemos = True
                 # S'il y a un soucis, on baisse la vleur seuil de l'histogramme précédent
-                if self.init_parameters.min_hist_line < 0.2:
+                if self.init_parameters.min_hist_line <= 0.2:
                     self.init_parameters.min_hist_line += 0.05
                 else:
                     self.problemos = False
@@ -83,16 +83,32 @@ class FrameFocus():
             Coord = [x, y, w, hi]
         else:
             x, y, w, hi = Coord
+        if w < (self.image.shape[1])/2 or hi < (self.image.shape[0]/2):
+            self.skip()
+            self.fpsc.count_calc()
+            return
         if self.terrain.size[0] == 0 and self.terrain.size[1] == 0:
             self.terrain.size = [w, hi]
             self.terrain.coordinates = [x, y]
         elif self.terrain.size[0]*0.8 > w or w > self.terrain.size[0]*1.2 or self.terrain.size[1]*0.8 > hi or hi > self.terrain.size[1]*1.2:
-            self.init_parameters.paramTot = [0, 0, 0, 0, 0]
-            self.terrain.size = [0, 0]
-            self.terrain.coordinates = [0, 0]
-        self.coord = [x, y, w, hi]
+            self.skip()
+            self.fpsc.count_calc()
+            return 
+        else:
+            self.terrain.size = [w, hi]
+            self.terrain.coordinates = [x, y]
+        if w ==0 and hi == 0:
+            self.coord = [0,0,0,0]
+        else:
+            self.coord = [x, y, w, hi]
         self.fpsc.count_calc()
     
+    def skip(self):           
+        self.init_parameters.paramTot = [0, 0, 0, 0, 0]
+        self.terrain.size = [0, 0]
+        self.terrain.coordinates = [0, 0]
+        self.coord = [0, 0, 0, 0]
+
     def display_ground(self):
         if len(self.h) == 0:
             self.mask_rgb = np.zeros(self.image.shape, np.uint8)

@@ -34,13 +34,21 @@ class Main():
             self.ui = []
             self.path_video = ''
 
+    def break_the_while(self):
+        value = True
+        if self.value == False:
+            value = self.ui.quit
+        else:
+            value = self.key_event.continue_while
+        return value
+
     def start(self):
         if self.read :
             self.d = d3dshot.create(capture_output="numpy")
             self.d.display = self.d.displays[1]
         else:
             self.frame.open_cap(self.path_video)
-        while self.key_event.continue_while:
+        while self.break_the_while():
             # Acquisition de l'image + gestion de la pause
             if self.value:
                 if self.read:
@@ -98,6 +106,7 @@ class Main():
             if self.value == False:
                 self.ui.lineEdit.setText('%.2f' % (self.fpsc.fps_capture_mean))
                 self.ui.lineEdit_2.setText('%.2f' % (self.fpsc.fps_mean))
+                self.ui.textEdit_4.setText('x = %.1f, y = %.1f,\n w = %.1f, h = %.1f'%(self.field.coordinates[0], self.field.coordinates[1], self.field.size[0], self.field.size[1]))
                 self.ui.update_frame(img)
             else:
                 # Affichage des fps sur l'image. On le fait à la fin pour éviter de perturber le soft
@@ -106,7 +115,8 @@ class Main():
                 cv2.putText(img, 'max = %.2f' % (self.fpsc.fps_capture_mean), (0, 25),
                             cv2.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 2, cv2.LINE_AA)
                 cv2.imshow('SC', cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
-
+            if self.value == False:
+                self.ui
             self.init_param.num_itteration += 1
 
         if self.value:
